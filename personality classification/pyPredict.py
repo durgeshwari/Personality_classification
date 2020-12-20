@@ -149,6 +149,7 @@ with open('CSV_Data/newfrequency300.csv','rt') as f:
 
 vectorizer=TfidfVectorizer(vocabulary=mydict,min_df=1)
 x=vectorizer.fit_transform(tweetList).toarray()
+print("x->",x)
 df=pd.DataFrame(x)
 
 
@@ -158,22 +159,26 @@ model_TF = pickle.load(open('Pickle_Data/BNTFFinal.sav', 'rb'))
 model_PJ = pickle.load(open('Pickle_Data/BNPJFinal.sav', 'rb'))
 
 answer=[]
+
+print(df)
+
 IE=model_IE.predict(df)
 SN=model_SN.predict(df)
 TF=model_TF.predict(df)
 PJ=model_PJ.predict(df)
+print("ie",IE)
 
 pred_perc=[]
 
 b = Counter(IE)
+ 
+print("b->",b)
 
 value=b.most_common(1)
-
-
 b=dict(b)
-pred_perc.append((value[0][1]*100)//(b[1.0]+b[0.0]))
-print('value',value)
 
+pred_perc.append((value[0][1]*100)//(b.get(1.0,0)+b.get(0.0,0)))
+print('value',value)
 
 #print(value)
 if value[0][0] == 1.0:
@@ -188,7 +193,7 @@ value=b.most_common(1)
 
 
 b=dict(b)
-pred_perc.append((value[0][1]*100)//(b[1.0]+b[0.0]))
+pred_perc.append((value[0][1]*100)//(b.get(1.0,0)+b.get(0.0,0)))
 
 
 if value[0][0] == 1.0:
@@ -202,7 +207,7 @@ value=b.most_common(1)
 
 
 b=dict(b)
-pred_perc.append((value[0][1]*100)//(b[1.0]+b[0.0]))
+pred_perc.append((value[0][1]*100)//(b.get(1.0,0)+b.get(0.0,0)))
 
 
 if value[0][0] == 1:
@@ -215,7 +220,8 @@ value=b.most_common(1)
 #print(value)
 
 b=dict(b)
-pred_perc.append((value[0][1]*100)//(b[1.0]+b[0.0]))
+
+pred_perc.append((value[0][1]*100)//(b.get(1.0,0)+b.get(0.0,0)))
 
 if value[0][0] == 1:
 	answer.append("P")
@@ -238,16 +244,22 @@ opp_char ={'I':'E','E':'I','S':'N','N':'S',
 for i in range(4):
     char_per[answer[i]]=pred_perc[i]
     char_per[opp_char[answer[i]]]=100-pred_perc[i]
-#print(char_per)
 
-all_pers = ['ENFJ','ISTJ','INFJ','INTJ','INTP','ESFJ','INFP','ENFP','ESTP','ESTJ','ENTJ']
+print(char_per)
+
+all_pers = ['ENFJ','ISTJ','INFJ','INTJ','ISTP','ESFJ','INFP','ESFP','ENFP','ESTP','ESTJ','ENTJ','INTP','ISFJ','ENTP','ISFP']
+
 pers_perc={}
 for word in all_pers:
     perc=sum([char_per[el] for el in word])//4
     pers_perc[word]=perc
 print(pers_perc)
 
+k=Counter(pers_perc)
+max3=k.most_common(3)
 
+for i in max3:
+  print(i[0]," : ",i[1]," \n")
 
 if mbti == 'ENFJ':
 	str1 = '" The Giver "'
